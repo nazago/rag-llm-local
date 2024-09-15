@@ -47,10 +47,10 @@ class DocumentManager:
             directory_path (str): Path to the directory containing markdown files.
             glob_pattern (str, optional): The pattern used to search for markdown files. Defaults to "./*.md".
         """
-        self.directory_path = directory_path
-        self.glob_pattern = glob_pattern
-        self.documents = []
-        self.all_sections = []
+        self.directory_path: str = directory_path
+        self.glob_pattern: str = glob_pattern
+        self.documents: list[str] = []
+        self.all_sections: list[Document] = []
 
     def load_markdown_files(self) -> None:
         """Loads markdown files from the specified directory and stores their content in the documents list.
@@ -92,9 +92,9 @@ class EmbeddingManager:
             all_sections (list[Document]): List of document sections to be embedded.
             persist_directory (str, optional): Path to the directory where the embeddings are stored. Defaults to "db".
         """
-        self.all_sections = all_sections
-        self.persist_directory = persist_directory
-        self.vectordb = None
+        self.all_sections: list[Document] = all_sections
+        self.persist_directory: str = persist_directory
+        self.vectordb: Chroma = None
         self.embedding = OllamaEmbeddings(model=config.EMBEDDING_MODEL)
 
     def create_and_persist_embeddings(self) -> None:

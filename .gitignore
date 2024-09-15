@@ -1,0 +1,9 @@
+**__pycache__/
+.env
+dev_notes.md
+db/*
+docs/*
+notebooks/
+build/
+venv_rag_llm/
+.vscode/

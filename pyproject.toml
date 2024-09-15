@@ -1,0 +1,51 @@
+[build-system]
+requires                      = [
+                              "setuptools",
+                              "setuptools-scm",
+                              ]
+build-backend                 = "setuptools.build_meta"
+
+[tool.isort]
+line_length                   = 150  # To match black's default line length
+
+[tool.ruff]
+line-length                   = 200
+indent-width                  = 4
+
+[tool.ruff.lint]
+select                        = ["ALL"]
+ignore                        = ["T201"]
+[tool.ruff.lint.isort]
+force-single-line             = true
+force-sort-within-sections    = false
+lines-after-imports           = 2
+known-first-party             = []
+known-local-folder            = []
+known-third-party             = []
+section-order                 = [
+                              "future",
+                              "standard-library",
+                              "third-party",
+                              "first-party",
+                              "local-folder",
+                              ]
+[tool.ruff.lint.mccabe]
+max-complexity                = 24
+[tool.ruff.lint.pycodestyle]
+ignore-overlong-task-comments = true
+[tool.ruff.lint.pydocstyle]
+convention                    = "google"
+[tool.ruff.lint.flake8-annotations]
+allow-star-arg-any            = false
+ignore-fully-untyped          = false
+[tool.ruff.format]
+quote-style                   = "double"
+indent-style                  = "space"
+skip-magic-trailing-comma     = false
+line-ending                   = "auto"
+preview                       = false
+docstring-code-format         = true
+[tool.mypy]
+# Platform configuration
+python_version                = "3.12.5"
+ignore_missing_imports        = true

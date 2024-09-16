@@ -116,6 +116,51 @@ class EmbeddingManager:
 def format_docs(docs: list[Document]) -> None:  # noqa: D103
     return "\n\n".join(doc.page_content for doc in docs)
 
+def chat_mode() -> None:  # noqa: D103
+    llm = OllamaLLM(model= config.LLM_MODEL, temperature=0.4)
+
+    RAG_TEMPLATE = """
+    You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question.
+    These notes come from documentation and a laboratory diary.
+    If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.
+
+    <context>
+    {context}
+    </context>
+
+    Answer the following question:
+
+    {question}"""  # noqa: N806
+
+    rag_prompt = ChatPromptTemplate.from_template(RAG_TEMPLATE)
+
+    rag_chain = rag_prompt | llm | StrOutputParser()
+
+    print("Welcome to information retrieval LLM! To exit, type `exit`")
+    while True:
+        print("Ask something")
+        user_input = input()
+        if user_input == "exit":
+            print("Goodbye!")
+            break
+        context = retriever.invoke(user_input)
+        print(f"Question: {user_input}\nContext:\n{format_docs(context)}")
+        print("##################################################\nElaborating your prompt...")
+        result = rag_chain.invoke({"context": format_docs(context), "question": user_input})
+        print("##################################################")
+        print(f"AI BOT reply:\n {result}")
+
+def retrieval_mode() -> None:  # noqa: D103
+    print("Welcome to information retrieval mode! To exit, type `exit`")
+    while True:
+        print("Ask something")
+        user_input = input()
+        if user_input == "exit":
+            print("Goodbye!")
+            break
+        context = retriever.invoke(user_input)
+        print(f"This is what the retriever found:\n{format_docs(context)}")
+
 if __name__ == "__main__":
     documents_loader_and_split = DocumentManager(config.DOCS_DIRECTORY)
     embed_manager = EmbeddingManager(documents_loader_and_split.all_sections)
@@ -137,35 +182,7 @@ if __name__ == "__main__":
     retriever = embed_manager.vectordb.as_retriever(search_type="mmr",
                                                     search_kwargs={"k": 4}) # gives closest k chunks
 
-    llm = OllamaLLM(model= config.LLM_MODEL, temperature=0.4)
-
-    RAG_TEMPLATE = """
-    You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question.
-    These notes come from documentation and a laboratory diary.
-    If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.
-
-    <context>
-    {context}
-    </context>
-
-    Answer the following question:
-
-    {question}"""
-
-    rag_prompt = ChatPromptTemplate.from_template(RAG_TEMPLATE)
-
-    rag_chain = rag_prompt | llm | StrOutputParser()
-
-    print("Welcome to information retrieval LLM! To exit, type `exit`")
-    while True:
-        print("Ask something")
-        user_input = input()
-        if user_input == "exit":
-            print("Goodbye!")
-            break
-        context = retriever.invoke(user_input)
-        print(f"Question: {user_input}\nContext:\n{format_docs(context)}")
-        print("##################################################\nElaborating your prompt...")
-        result = rag_chain.invoke({"context": format_docs(context), "question": user_input})
-        print("##################################################")
-        print(f"AI BOT reply:\n {result}")
+    if config.RAG_LLM:
+        chat_mode()
+    else:
+        retrieval_mode()
